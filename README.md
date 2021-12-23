@@ -67,6 +67,16 @@ schema:
 type: array
 
 paths:
+**/users?pageNumber={number}&nPerPage={number}**
+method.get
+summary: Returns all users in the database. description: Everyone have access.
+responses:
+200:
+description: Returns the list of users
+schema:
+type: array
+
+paths:
 **/user/signup**
 method.post
 

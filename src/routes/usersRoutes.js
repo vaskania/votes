@@ -6,6 +6,7 @@ const updateUserProfile = require('../Controllers/updateUserProfile');
 const updateUserPassword = require('../Controllers/updateUserPassword');
 const userProfile = require('../Controllers/userProfile');
 const usersList = require('../Controllers/usersList');
+const basicAuth = require('../middleware/basicAuth');
 const hash = require('../util/pbkdf2');
 
 const logger = require('../log/logger');
@@ -82,7 +83,7 @@ router.post('/user/signin', async (req, res) => {
 
 // POST updete user Profile by ID
 
-router.post('/user/:id/update-password', async (req, res) => {
+router.post('/user/:id/update-password', basicAuth, async (req, res) => {
   const { password: pwd } = req.body;
 
   if (!pwd || typeof pwd !== 'string') {
@@ -140,7 +141,11 @@ router.post('/user/:id/update-profile', async (req, res) => {
 
 // GET user by ID
 
-router.get('/user/:id', async (req, res) => {
+router.get('/user/:id', basicAuth, async (req, res) => {
+  const authenticatedUser = req.authenticatedUser;
+  if (!authenticatedUser) {
+    return res.status(403).send({ message: 'forbidden' });
+  }
   try {
     const id = req.params.id;
     const user = await userProfile(id);

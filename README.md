@@ -88,7 +88,7 @@ description: New user was created successfully
 paths:
 **/user/signin**
 method.post
-description: Everyone can access.
+description: Only user can access.
 parameters:
 username: username - required: true
 password : password - required: true
@@ -103,7 +103,7 @@ description: Logged in successfully
 paths:
 **/user/:id**
 method.get
-summary: Retrieves a user
+summary: Retrieves a user profile information
 description: Everyone can retrieve user firstname and lastname
 parameters: - \*id
 responses:
@@ -116,12 +116,11 @@ paths:
 **/user/:id/update-profile**  
 method.post
 summary: Edits a user
-description: >
-User can change firstname, lastname
+description: Only user can change it's own firstname or lastname
 parameters: - \*id
 responses:
 200:
-description: User data was updated successfully
+description: Profile updated successfully
 schema:
 $ref: user
 404:
@@ -131,12 +130,11 @@ paths:
 **/user/:id/update-password**  
 method.post
 summary: Edits a user's password
-description: >
-User can change password
+description: Only user can change it's own password
 parameters: - \*id
 responses:
 200:
-description: User password was changed successfully
+description: Password updated successfully
 schema:
 $ref: user
 404:

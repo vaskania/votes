@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const authenticate = require('../Controllers/signIn');
 const signup = require('../Controllers/signUp');
 const updateUserProfile = require('../Controllers/updateUserProfile');
 const updateUserPassword = require('../Controllers/updateUserPassword');
@@ -61,23 +60,7 @@ router.post('/user/signup', async (req, res) => {
 
 // Signin User
 
-router.post('/user/signin', async (req, res) => {
-  const authorization = req.headers.authorization;
-
-  if (!authorization || authorization.indexOf('Basic ') === -1) {
-    return res.status(401).json({ message: 'Missing Authorization Header' });
-  }
-
-  const encoded = authorization.split(' ')[1];
-  const decoded = Buffer.from(encoded, 'base64').toString('ascii');
-  const [username, password] = decoded.split(':');
-  const user = await authenticate(username, password);
-  if (!user) {
-    return res
-      .status(401)
-      .json({ message: 'Username or Password is incorrect' });
-  }
-  logger.info(`${user.username} logged in successfully`);
+router.post('/user/signin', basicAuth, async (req, res) => {
   res.send({ status: 'Logged in successfully' });
 });
 
@@ -103,7 +86,7 @@ router.post('/user/:id/update-password', basicAuth, async (req, res) => {
     const id = req.params.id;
     await updateUserPassword(id, password, salt);
     res.send({
-      status: 'User password was saved successfully',
+      status: 'Password updated successfully',
     });
   } catch (error) {
     return res.json({
@@ -115,7 +98,7 @@ router.post('/user/:id/update-password', basicAuth, async (req, res) => {
 
 // POST updete user Profile by ID
 
-router.post('/user/:id/update-profile', async (req, res) => {
+router.post('/user/:id/update-profile', basicAuth, async (req, res) => {
   const { firstName, lastName } = req.body;
   if (typeof firstName !== 'string' || firstName.trim() === '') {
     return res.json({ status: 'error', error: 'Invalid Name' });
@@ -129,7 +112,7 @@ router.post('/user/:id/update-profile', async (req, res) => {
     const id = req.params.id;
     await updateUserProfile(id, firstName, lastName);
     res.send({
-      status: 'User data was saved successfully',
+      status: 'Profile updated successfully',
     });
   } catch (error) {
     return res.json({
@@ -141,11 +124,7 @@ router.post('/user/:id/update-profile', async (req, res) => {
 
 // GET user by ID
 
-router.get('/user/:id', basicAuth, async (req, res) => {
-  const authenticatedUser = req.authenticatedUser;
-  if (!authenticatedUser) {
-    return res.status(403).send({ message: 'forbidden' });
-  }
+router.get('/user/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const user = await userProfile(id);

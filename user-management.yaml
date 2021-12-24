@@ -1,0 +1,148 @@
+openapi: 3.0.0
+info:
+version: "1.0.0"
+title: User Management
+description: >
+ This is a sample API for managing a database of users. User accounts can be created, edited, and retrieved.Users can also login, for hashing used crypto.pbkdf2
+
+host: **localhost:3000**
+
+consumes:
+
+- application/json produces:
+- application/json
+
+definitions:
+
+# A simple username/password combo for logging in
+
+signin:
+required: [username, password]
+properties:
+ username:
+    type: string
+    minLength: 4
+ password:
+    type: string
+    minLength: 5
+
+User Schema:
+    parameters:
+      username: {
+        required: true,
+        type: string,
+        min: 4,
+        max: 45
+      }
+
+firstName: {
+    type: string,
+    min: 2,
+    max: 20
+    }
+lastName: {
+    type: string,
+    min: 2,
+    max: 20
+    }
+password: {
+    required: true,
+    type: string,
+    min: 6,
+    max: 1000  
+    }
+salt: {
+    type: string
+}
+
+paths:
+  /users:
+      get:
+        summary: Returns all users in the database.
+        Description: Everyone have access.
+        responses:
+        200:
+        description: Returns the list of users
+        schema:
+        type: array
+
+  /users?pageNumber={number}&nPerPage={number}:
+      get:
+        summary: Returns all users in the database.
+        Description: Everyone have access.
+        responses:
+        200:
+        description: Returns the list of users
+        schema:
+        type: array
+
+  /user/signup:
+      post:
+        summary: Creates a new user
+        description: Everyone can access.
+        parameters:
+        username:
+           required: true
+        password : 
+           required: true
+        firstname: firstName  
+        lastname: lastName
+        in: body
+        schema:
+        $ref: user
+        Description: The user account to create
+        responses: 
+          '201':
+             Description: New user was created successfully
+
+  /user/signin:
+      post:
+        description: Only user can access.
+        parameters:
+        username:
+            required: true
+        password :  
+            required: true
+        in: body
+        schema:
+        $ref: user
+        Description: Login to user acount
+        responses:
+          '201':
+            Description: Logged in successfully
+
+  /user/:id:
+      get:
+        summary: Retrieves a user profile information
+        description: Everyone can retrieve user firstname and lastname
+        parameters:  \*id
+        responses:
+         '200':
+            Description: Returns the user's data
+        schema:
+        $ref: user
+
+  /user/:id/update-profile:
+      post:
+        summary: Edits a user
+        description: Only user can change it's own firstname or lastname
+        parameters:  \*id
+        responses:
+          '200':
+             Description: Profile updated successfully
+          responses:
+            '404':
+             Description: The username was not found
+
+  /user/:id/update-password:  
+      post:
+        summary: Edits a user's password
+        description: Only user can change it's own password
+        parameters:  \*id
+        responses:
+          '200':
+             Description: Password updated successfully
+
+          responses:
+            '404':
+             Description: The username was not found

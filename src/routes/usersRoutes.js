@@ -65,9 +65,9 @@ router.post('/user/signin', basicAuth, async (req, res) => {
   res.send({ status: 'Logged in successfully' });
 });
 
-// POST updete user Profile by ID
+// PUT updete user Profile by ID
 
-router.post('/user/:id/update-password', basicAuth, async (req, res) => {
+router.put('/user/:id/update-password', basicAuth, async (req, res) => {
   const { password: pwd } = req.body;
 
   if (!pwd || typeof pwd !== 'string') {
@@ -97,9 +97,9 @@ router.post('/user/:id/update-password', basicAuth, async (req, res) => {
   }
 });
 
-// POST updete user Profile by ID
+// PUT update user Profile by ID
 
-router.post('/user/:id/update-profile', basicAuth, async (req, res) => {
+router.put('/user/:id/update-profile', basicAuth, async (req, res) => {
   const { firstName, lastName } = req.body;
   if (typeof firstName !== 'string' || firstName.trim() === '') {
     return res.json({ status: 'error', error: 'Invalid Name' });
@@ -118,7 +118,7 @@ router.post('/user/:id/update-profile', basicAuth, async (req, res) => {
   } catch (error) {
     return res.json({
       status: 404,
-      error: 'The username was not found',
+      error: 'User not found',
     });
   }
 });
@@ -136,8 +136,8 @@ router.get('/user/:id', async (req, res) => {
     });
   } catch (error) {
     return res.json({
-      status: 'error',
-      error: 'Invalid user ID',
+      status: 404,
+      error: 'User not found',
     });
   }
 });
@@ -159,7 +159,7 @@ router.get('/users', async (req, res) => {
         }),
       );
     }
-    return res.json({ status: 'Users not found' });
+    return res.json({ status: 404, error: 'Users not found' });
   } catch (error) {
     return res.json({
       status: 'error',
@@ -179,8 +179,8 @@ router.delete('/user/:id', basicAuth, async (req, res) => {
     });
   } catch (error) {
     return res.json({
-      status: 'error',
-      error: 'User with this ID was not found',
+      status: 404,
+      error: 'User not found',
     });
   }
 });

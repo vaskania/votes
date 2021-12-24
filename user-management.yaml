@@ -1,145 +1,211 @@
-openapi: 3.0.0
+---
+swagger: "2.0"
 info:
-version: "1.0.0"
-title: User Management
-description: >
- This is a sample API for managing a database of users. User accounts can be created, edited, and retrieved.Users can also login, for hashing used crypto.pbkdf2
-
-host: **localhost:3000**
-
-produces:
-- application/json
-
-definitions:
-
-# A simple username/password combo for logging in
-
-signin:
-required: [username, password]
-properties:
- username:
-    type: string
-    minLength: 4
- password:
-    type: string
-    minLength: 5
-
-User Schema:
-    parameters:
-      username: {
-        required: true,
-        type: string,
-        min: 4,
-        max: 45
-      }
-firstName: {
-    type: string,
-    min: 2,
-    max: 20
-    }
-lastName: {
-    type: string,
-    min: 2,
-    max: 20
-    }
-password: {
-    required: true,
-    type: string,
-    min: 6,
-    max: 1000  
-    }
-salt: {
-    type: string
-}
-
+  description: |
+    This is a sample User Management Api
+  version: 1.0.0
+  title: User Management Api
+  contact:
+    email: vnikabadze@unisens.ge
+host: virtserver.swaggerhub.com
+basePath: /vaskania/User-Management-Api/1.0.0
+tags:
+- name: user
+  description: Operations about user
+  externalDocs:
+    description: Find out more about our store
+    url: http://swagger.io
+schemes:
+- https
+- http
 paths:
   /users:
-      get:
-        summary: Returns all users in the database.
-        Description: Everyone have access.
-        responses:
-        200:
-        description: Returns the list of users
+    get:
+      tags:
+      - user
+      summary: Return all users from database
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: List of user object
+        required: true
         schema:
-        type: array
-
-  /users?pageNumber={number}&nPerPage={number}:
-      get:
-        summary: Returns all users in the database.
-        Description: Everyone have access.
-        responses:
-        200:
-        description: Returns the list of users
+          type: array
+          items:
+            $ref: '#/definitions/User'
+      responses:
+        "200":
+          description: username, firstName, lastName
+        default:
+          description: successful operation
+  /user?pageNumber=0&nPerPage=3:
+    get:
+      tags:
+      - user
+      summary: Creates list of users with given pageNumber and nPerPage
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: List of user object
+        required: true
         schema:
-        type: array
-
+          type: array
+          items:
+            $ref: '#/definitions/User'
+      responses:
+        default:
+          description: successful operation
   /user/signup:
-      post:
-        summary: Creates a new user
-        description: Everyone can access.
-        parameters:
-        username:
-           required: true
-        password : 
-           required: true
-        firstname: firstName  
-        lastname: lastName
-        in: body
+    post:
+      tags:
+      - user
+      summary: Create user
+      description: This can only be done by unique username
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Created user object
+        required: true
         schema:
-        $ref: user
-        Description: The user account to create
-        responses: 
-          '201':
-             Description: New user was created successfully
-
+          $ref: '#/definitions/User'
+      responses:
+        default:
+          description: User created successfully
   /user/signin:
-      post:
-        description: Only user can access.
-        parameters:
-        username:
-            required: true
-        password :  
-            required: true
-        in: body
+    post:
+      tags:
+      - user
+      summary: Logs user into the system
+      produces:
+      - application/json
+      parameters:
+      - name: username
+        in: query
+        description: The username for login
+        required: true
+        type: string
+      - name: password
+        in: query
+        description: The password for login in clear text
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Logged in successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid username/password supplied
+  /user/{id}:
+    get:
+      tags:
+      - user
+      summary: Get user by id
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be fetched. Use user1 for testing.
+        required: true
+        type: string
+      responses:
+        "200":
+          description: successful operation
+          schema:
+            $ref: '#/definitions/User'
+        "404":
+          description: User not found
+    delete:
+      tags:
+      - user
+      summary: Delete user by id
+      description: This can only be done by the logged in user.
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        in: path
+        description: The id that needs to be deleted
+        required: true
+        type: string
+      responses:
+        "400":
+          description: Invalid username supplied
+        "404":
+          description: User not found
+  /user/{id}/update-profile:
+    put:
+      tags:
+      - user
+      summary: Updated user firstName or lastName
+      description: This can only be done by the logged in user.
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        in: path
+        description: id that need to be updated
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: Updated user object
+        required: true
         schema:
-        $ref: user
-        Description: Login to user acount
-        responses:
-          '201':
-            Description: Logged in successfully
-
-  /user/:id:
-      get:
-        summary: Retrieves a user profile information
-        description: Everyone can retrieve user firstname and lastname
-        parameters:  \*id
-        responses:
-         '200':
-            Description: Returns the user's data
+          $ref: '#/definitions/User'
+      responses:
+        "400":
+          description: Invalid user supplied
+        "404":
+          description: User not found
+  /user/{id}/update-password:
+    put:
+      tags:
+      - user
+      summary: Updated user password
+      description: This can only be done by the logged in user.
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        in: path
+        description: id that need to be updated
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: Updated user object
+        required: true
         schema:
-        $ref: user
-
-  /user/:id/update-profile:
-      post:
-        summary: Edits a user
-        description: Only user can change it's own firstname or lastname
-        parameters:  \*id
-        responses:
-          '200':
-             Description: Profile updated successfully
-          responses:
-            '404':
-             Description: The username was not found
-
-  /user/:id/update-password:  
-      post:
-        summary: Edits a user's password
-        description: Only user can change it's own password
-        parameters:  \*id
-        responses:
-          '200':
-             Description: Password updated successfully
-
-          responses:
-            '404':
-             Description: The username was not found
+          $ref: '#/definitions/User'
+      responses:
+        "400":
+          description: Invalid user supplied
+        "404":
+          description: User not found
+definitions:
+  User:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      username:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      deleted:
+        type: boolean

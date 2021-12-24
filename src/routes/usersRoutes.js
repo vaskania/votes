@@ -48,21 +48,18 @@ router.post('/user/signup', async (req, res) => {
     await signup(username, firstName, lastName, password, salt);
   } catch (error) {
     if (error.code === 11000) {
-      return res.json({
-        status: 'error',
-        error: 'Username already registered',
-      });
+      return res.status(409).send({ error: 'Username already exists' });
     }
     throw error;
   }
   logger.info(`${username} registered successfuly`);
-  res.json({ status: 201, message: 'New user was created successfully' });
+  return res.status(201).send({ message: 'New user was created successfully' });
 });
 
 // Signin User
 
 router.post('/user/signin', basicAuth, async (req, res) => {
-  res.send({ status: 'Logged in successfully' });
+  return res.status(200).send({ message: 'Logged in successfully' });
 });
 
 // PUT updete user Profile by ID
@@ -86,14 +83,9 @@ router.put('/user/:id/update-password', basicAuth, async (req, res) => {
   try {
     const id = req.params.id;
     await updateUserPassword(id, password, salt);
-    res.send({
-      status: 'Password updated successfully',
-    });
+    return res.status(200).send({ message: 'Password updated successfully' });
   } catch (error) {
-    return res.json({
-      status: 404,
-      error: 'Invalid user ID',
-    });
+    return res.status(404).send({ error: 'Invalid user ID' });
   }
 });
 
@@ -112,14 +104,9 @@ router.put('/user/:id/update-profile', basicAuth, async (req, res) => {
   try {
     const id = req.params.id;
     await updateUserProfile(id, firstName, lastName);
-    res.send({
-      status: 'Profile updated successfully',
-    });
+    res.status(200).send({ message: 'Profile updated successfully' });
   } catch (error) {
-    return res.json({
-      status: 404,
-      error: 'User not found',
-    });
+    return res.status(404).send({ error: 'User not found' });
   }
 });
 
@@ -129,16 +116,13 @@ router.get('/user/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const user = await userProfile(id);
-    res.json({
+    res.status(200).send({
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
     });
   } catch (error) {
-    return res.json({
-      status: 404,
-      error: 'User not found',
-    });
+    return res.status(404).send({ error: 'User not found' });
   }
 });
 
@@ -159,12 +143,9 @@ router.get('/users', async (req, res) => {
         }),
       );
     }
-    return res.json({ status: 404, error: 'Users not found' });
+    return res.status(404).send({ error: 'Users not found' });
   } catch (error) {
-    return res.json({
-      status: 'error',
-      error: "Cann't get data",
-    });
+    return res.status(404).send({ error: "Cann't get data" });
   }
 });
 
@@ -173,15 +154,13 @@ router.delete('/user/:id', basicAuth, async (req, res) => {
   try {
     const id = req.params.id;
     const user = await deleteProfile(id);
-    res.json({
-      status: 200,
-      message: `${user.username} with  ID:'${id}' was deleted successfully`,
-    });
+    res
+      .status(200)
+      .send({
+        message: `${user.username} with  ID:'${id}' was deleted successfully`,
+      });
   } catch (error) {
-    return res.json({
-      status: 404,
-      error: 'User not found',
-    });
+    return res.status(404).send({ error: 'User not found' });
   }
 });
 

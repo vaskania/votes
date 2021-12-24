@@ -20,7 +20,7 @@ const basicAuth = async (req, res, next) => {
 
   if (!authUser) {
     return res
-      .status(403)
+      .status(401)
       .send({ message: 'Username or password is incorrect' });
   }
 

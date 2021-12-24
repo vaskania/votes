@@ -7,9 +7,7 @@ description: >
 
 host: **localhost:3000**
 
-consumes:
-
-- application/json produces:
+produces:
 - application/json
 
 definitions:
@@ -34,7 +32,6 @@ User Schema:
         min: 4,
         max: 45
       }
-
 firstName: {
     type: string,
     min: 2,

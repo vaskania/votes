@@ -5,6 +5,7 @@ const updateUserProfile = require('../Controllers/updateUserProfile');
 const updateUserPassword = require('../Controllers/updateUserPassword');
 const userProfile = require('../Controllers/userProfile');
 const usersList = require('../Controllers/usersList');
+const deleteProfile = require('../Controllers/deleteProfile');
 const basicAuth = require('../middleware/basicAuth');
 const hash = require('../util/pbkdf2');
 
@@ -163,6 +164,23 @@ router.get('/users', async (req, res) => {
     return res.json({
       status: 'error',
       error: "Cann't get data",
+    });
+  }
+});
+
+// Delete User
+router.delete('/user/:id', basicAuth, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await deleteProfile(id);
+    res.json({
+      status: 200,
+      message: `${user.username} with  ID:'${id}' was deleted successfully`,
+    });
+  } catch (error) {
+    return res.json({
+      status: 'error',
+      error: 'User with this ID was not found',
     });
   }
 });

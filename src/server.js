@@ -21,7 +21,7 @@ const server = app.listen(port);
 
 const shutdown = async () => {
   logger.info('Signal received: Gracefully killing application');
-  const promises = [server.close(), closeDB()];
+  const promises = [closeDB(), server.close()];
   return Promise.all(promises)
     .then(() => {
       logger.info('Application closed');

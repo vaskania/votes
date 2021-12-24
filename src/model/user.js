@@ -29,6 +29,11 @@ const UserSchema = new Schema(
     salt: {
       type: String,
     },
+    deleted: {
+      type: Boolean,
+      index: true,
+      default: false,
+    },
   },
   // { timestamps: true },
 );

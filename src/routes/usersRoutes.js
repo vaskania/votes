@@ -16,30 +16,29 @@ router.use(bodyParser.json());
 
 // Signup User
 
-router.post('/user/signup', async (req, res) => {
+router.post('/user/register', async (req, res) => {
   const { username, password: pwd, firstName, lastName } = req.body;
 
   if (!username || typeof username !== 'string' || username.length < 5) {
-    return res.json({ status: 'error', error: 'Invalid Username' });
+    return res.status(409).send({ error: 'Invalid Username' });
   }
 
   if (!pwd || typeof pwd !== 'string') {
-    return res.json({ status: 'error', error: 'Invalid Password' });
+    return res.status(409).send({ error: 'Invalid Password' });
   }
 
   if (pwd.trim().length < 5) {
-    return res.json({
-      status: 'error',
-      error: 'Password too small, min 5 charachters',
-    });
+    return res
+      .status(409)
+      .send({ error: 'Password too small, min 5 charachters' });
   }
 
   if (!firstName || typeof firstName !== 'string') {
-    return res.json({ status: 'error', error: 'Invalid Name' });
+    return res.status(409).send({ error: 'Invalid Firstname' });
   }
 
   if (!lastName || typeof lastName !== 'string') {
-    return res.json({ status: 'error', error: 'Invalid Lastname' });
+    return res.status(409).send({ error: 'Invalid Lastname' });
   }
 
   const { salt, password } = await hash(pwd);
@@ -58,24 +57,23 @@ router.post('/user/signup', async (req, res) => {
 
 // Signin User
 
-router.post('/user/signin', basicAuth, async (req, res) => {
+router.post('/user/login', basicAuth, async (req, res) => {
   return res.status(200).send({ message: 'Logged in successfully' });
 });
 
-// PUT updete user Profile by ID
+// PUT update user Profile by ID
 
-router.put('/user/:id/update-password', basicAuth, async (req, res) => {
+router.put('/user/update-password/:id', basicAuth, async (req, res) => {
   const { password: pwd } = req.body;
 
   if (!pwd || typeof pwd !== 'string') {
-    return res.json({ status: 'error', error: 'Invalid Password' });
+    return res.status(409).send({ error: 'Invalid Password' });
   }
 
   if (pwd.trim().length < 5) {
-    return res.json({
-      status: 'error',
-      error: 'Password too small, min 5 charachters',
-    });
+    return res
+      .status(409)
+      .send({ error: 'Password too small, min 5 charachters' });
   }
 
   const { salt, password } = await hash(pwd);
@@ -91,14 +89,14 @@ router.put('/user/:id/update-password', basicAuth, async (req, res) => {
 
 // PUT update user Profile by ID
 
-router.put('/user/:id/update-profile', basicAuth, async (req, res) => {
+router.put('/user/update-profile/:id', basicAuth, async (req, res) => {
   const { firstName, lastName } = req.body;
   if (typeof firstName !== 'string' || firstName.trim() === '') {
-    return res.json({ status: 'error', error: 'Invalid Name' });
+    return res.status(409).send({ error: 'Invalid Firsname' });
   }
 
   if (typeof lastName !== 'string' || lastName.trim() === '') {
-    return res.json({ status: 'error', error: 'Invalid Lastname' });
+    return res.status(409).send({ error: 'Invalid Lastname' });
   }
 
   try {
@@ -116,11 +114,15 @@ router.get('/user/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const user = await userProfile(id);
-    res.status(200).send({
-      username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    });
+    if (user.length !== 0) {
+      res.status(200).send({
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      });
+    } else {
+      return res.status(404).send({ error: 'User not found' });
+    }
   } catch (error) {
     return res.status(404).send({ error: 'User not found' });
   }
@@ -150,15 +152,14 @@ router.get('/users', async (req, res) => {
 });
 
 // Delete User
+
 router.delete('/user/:id', basicAuth, async (req, res) => {
   try {
     const id = req.params.id;
     const user = await deleteProfile(id);
-    res
-      .status(200)
-      .send({
-        message: `${user.username} with  ID:'${id}' was deleted successfully`,
-      });
+    res.status(200).send({
+      message: `${user.username} with  ID:'${id}' was deleted successfully`,
+    });
   } catch (error) {
     return res.status(404).send({ error: 'User not found' });
   }

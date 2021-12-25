@@ -2,7 +2,7 @@ const User = require('../model/user');
 
 const deleteProfile = async (id) => {
   const profileDeleted = await User.findByIdAndUpdate(
-    { _id: id },
+    { _id: id, deleted: false },
     { deleted: true },
   );
   return profileDeleted;

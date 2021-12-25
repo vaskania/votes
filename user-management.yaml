@@ -51,8 +51,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Signup'
               example:
-                username: User Name
-                password: password
+                message: New user was created successfully
         "400":
           description: Username already exists
           content:
@@ -75,8 +74,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
               example:
-                username: User Name
-                password: password
+                message: Logged in successfully
         "400":
           description: Invalid username/password
           content:
@@ -106,7 +104,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserProfile'
               example:
-                username: User Name
+                username: Username
                 firstName: User
                 lastName: Name
         "404":
@@ -139,8 +137,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/DeleteProfile'
               example:
-                username: User Name
-                password: password
+                message: User with ID:"id" was deleted syccessfully
         "404":
           description: User not found
           content:
@@ -173,8 +170,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UpdateUserProfile'
               example:
-                firstName: User
-                lastName: Name
+                message: Profile updated successfully
         "404":
           description: User not found
           content:
@@ -207,7 +203,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UpdateUserPassword'
               example:
-                password: password
+                message: Password updated successfully
         "404":
           description: User not found
           content:

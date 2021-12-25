@@ -23,8 +23,20 @@ paths:
             application/json:
               schema:
                 type: array
+                example:
+                  username: User Name
+                  firstName: User
+                  lastName: Name
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: '#/components/schemas/UsersList'
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: User not found
   /user/register:
     post:
       tags:
@@ -34,14 +46,21 @@ paths:
       responses:
         "201":
           description: New user was created successfully
-        "409":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Signup'
+              example:
+                username: User Name
+                password: password
+        "400":
           description: Username already exists
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Error'
+              example:
+                error: User already exists
   /user/login:
     post:
       tags:
@@ -51,12 +70,21 @@ paths:
       responses:
         "200":
           description: logged in successfully'
-        "400":
-          description: Invalid username/password supplied
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+              example:
+                username: User Name
+                password: password
+        "400":
+          description: Invalid username/password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Invalid username/password
   /user/{id}:
     get:
       summary: Get user by id
@@ -73,8 +101,22 @@ paths:
       responses:
         "200":
           description: User profile fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+              example:
+                username: User Name
+                firstName: User
+                lastName: Name
         "404":
           description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: User not found
     delete:
       tags:
       - user
@@ -92,12 +134,21 @@ paths:
       responses:
         "200":
           description: User profile deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteProfile'
+              example:
+                username: User Name
+                password: password
         "404":
           description: User not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Error'
+              example:
+                error: User not found
   /user/update-profile/{id}:
     put:
       tags:
@@ -117,12 +168,21 @@ paths:
       responses:
         "200":
           description: Updated user object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateUserProfile'
+              example:
+                firstName: User
+                lastName: Name
         "404":
           description: User not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Error'
+              example:
+                error: User not found
   /user/update-password/{id}:
     put:
       tags:
@@ -142,14 +202,27 @@ paths:
       responses:
         "200":
           description: Updated user password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateUserPassword'
+              example:
+                password: password
         "404":
           description: User not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Error'
+              example:
+                error: User not found
 components:
   schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
     User:
       required:
       - password
@@ -168,3 +241,45 @@ components:
           type: string
         delete:
           type: boolean
+    UsersList:
+      type: object
+      properties:
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+    Signup:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    UserProfile:
+      type: object
+      properties:
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+    UpdateUserProfile:
+      type: object
+      properties:
+        firstname:
+          type: string
+        lastname:
+          type: string
+    UpdateUserPassword:
+      type: object
+      properties:
+        password:
+          type: string
+    DeleteProfile:
+      type: object
+      properties:
+        id:
+          type: string

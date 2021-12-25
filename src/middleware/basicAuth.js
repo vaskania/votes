@@ -1,4 +1,4 @@
-const userMatch = require('../Controllers/user');
+const userMatch = require('../components/user');
 
 const basicAuth = async (req, res, next) => {
   const id = req.params.id;

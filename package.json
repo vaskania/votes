@@ -36,6 +36,7 @@
         "express": "^4.17.2",
         "mongoose": "^6.1.2",
         "pino": "^7.5.1",
-        "pino-pretty": "^7.3.0"
+        "pino-pretty": "^7.3.0",
+        "soft-delete-plugin-mongoose": "^1.0.15"
     }
 }

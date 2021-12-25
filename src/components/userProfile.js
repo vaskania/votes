@@ -1,7 +1,7 @@
 const User = require('../model/user');
 
 const userProfile = async (id) => {
-  const user = await User.find({ _id: id, deleted: false });
+  const user = await User.findOne({ _id: id, isDeleted: false });
   return user;
 };
 

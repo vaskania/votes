@@ -2,7 +2,7 @@ const User = require('../model/user');
 
 const updateUserProfile = async (id, firstName, lastName) => {
   const user = await User.findByIdAndUpdate(
-    { _id: id, deleted: false },
+    { _id: id, isDeleted: false },
     { firstName, lastName },
   );
   user.save();

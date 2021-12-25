@@ -1,11 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const signup = require('../Controllers/signUp');
-const updateUserProfile = require('../Controllers/updateUserProfile');
-const updateUserPassword = require('../Controllers/updateUserPassword');
-const userProfile = require('../Controllers/userProfile');
-const usersList = require('../Controllers/usersList');
-const deleteProfile = require('../Controllers/deleteProfile');
+const signup = require('../components/signUp');
+const updateUserProfile = require('../components/updateUserProfile');
+const updateUserPassword = require('../components/updateUserPassword');
+const userProfile = require('../components/userProfile');
+const usersList = require('../components/usersList');
+const deleteProfile = require('../components/deleteProfile');
 const basicAuth = require('../middleware/basicAuth');
 const hash = require('../util/pbkdf2');
 
@@ -20,25 +20,25 @@ router.post('/user/register', async (req, res) => {
   const { username, password: pwd, firstName, lastName } = req.body;
 
   if (!username || typeof username !== 'string' || username.length < 5) {
-    return res.status(409).send({ error: 'Invalid Username' });
+    return res.status(400).send({ error: 'Invalid Username' });
   }
 
   if (!pwd || typeof pwd !== 'string') {
-    return res.status(409).send({ error: 'Invalid Password' });
+    return res.status(400).send({ error: 'Invalid Password' });
   }
 
   if (pwd.trim().length < 5) {
     return res
-      .status(409)
+      .status(400)
       .send({ error: 'Password too small, min 5 charachters' });
   }
 
   if (!firstName || typeof firstName !== 'string') {
-    return res.status(409).send({ error: 'Invalid Firstname' });
+    return res.status(400).send({ error: 'Invalid Firstname' });
   }
 
   if (!lastName || typeof lastName !== 'string') {
-    return res.status(409).send({ error: 'Invalid Lastname' });
+    return res.status(400).send({ error: 'Invalid Lastname' });
   }
 
   const { salt, password } = await hash(pwd);
@@ -47,7 +47,7 @@ router.post('/user/register', async (req, res) => {
     await signup(username, firstName, lastName, password, salt);
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(409).send({ error: 'Username already exists' });
+      return res.status(400).send({ error: 'Username already exists' });
     }
     throw error;
   }
@@ -67,12 +67,12 @@ router.put('/user/update-password/:id', basicAuth, async (req, res) => {
   const { password: pwd } = req.body;
 
   if (!pwd || typeof pwd !== 'string') {
-    return res.status(409).send({ error: 'Invalid Password' });
+    return res.status(400).send({ error: 'Invalid Password' });
   }
 
   if (pwd.trim().length < 5) {
     return res
-      .status(409)
+      .status(400)
       .send({ error: 'Password too small, min 5 charachters' });
   }
 
@@ -92,11 +92,11 @@ router.put('/user/update-password/:id', basicAuth, async (req, res) => {
 router.put('/user/update-profile/:id', basicAuth, async (req, res) => {
   const { firstName, lastName } = req.body;
   if (typeof firstName !== 'string' || firstName.trim() === '') {
-    return res.status(409).send({ error: 'Invalid Firsname' });
+    return res.status(400).send({ error: 'Invalid Firsname' });
   }
 
   if (typeof lastName !== 'string' || lastName.trim() === '') {
-    return res.status(409).send({ error: 'Invalid Lastname' });
+    return res.status(400).send({ error: 'Invalid Lastname' });
   }
 
   try {
@@ -114,15 +114,12 @@ router.get('/user/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const user = await userProfile(id);
-    if (user.length !== 0) {
-      res.status(200).send({
-        username: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      });
-    } else {
-      return res.status(404).send({ error: 'User not found' });
-    }
+
+    return res.status(200).send({
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    });
   } catch (error) {
     return res.status(404).send({ error: 'User not found' });
   }
@@ -145,9 +142,8 @@ router.get('/users', async (req, res) => {
         }),
       );
     }
-    return res.status(404).send({ error: 'Users not found' });
   } catch (error) {
-    return res.status(404).send({ error: "Cann't get data" });
+    return res.status(404).send({ error: 'Users not found' });
   }
 });
 
@@ -156,9 +152,9 @@ router.get('/users', async (req, res) => {
 router.delete('/user/:id', basicAuth, async (req, res) => {
   try {
     const id = req.params.id;
-    const user = await deleteProfile(id);
-    res.status(200).send({
-      message: `${user.username} with  ID:'${id}' was deleted successfully`,
+    await deleteProfile(id);
+    return res.status(200).send({
+      message: `User with  ID:'${id}' was deleted successfully`,
     });
   } catch (error) {
     return res.status(404).send({ error: 'User not found' });

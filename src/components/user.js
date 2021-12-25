@@ -5,8 +5,8 @@ const userMatch = async (id = null, username, password) => {
   let user = null;
   try {
     id
-      ? (user = await User.findOne({ _id: id, deleted: false }))
-      : (user = await User.findOne({ username, deleted: false }));
+      ? (user = await User.findOne({ _id: id, isDeleted: false }))
+      : (user = await User.findOne({ username, isDeleted: false }));
 
     if (!user) {
       return;

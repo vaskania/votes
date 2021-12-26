@@ -14,9 +14,9 @@ const logger = require('../log/logger');
 const router = express.Router();
 router.use(bodyParser.json());
 
-// Signup User
+// Register User
 
-router.post('/user/register', async (req, res) => {
+router.post('/user/register', async (req, res, next) => {
   const { username, password: pwd, firstName, lastName } = req.body;
 
   if (!username || typeof username !== 'string' || username.length < 5) {
@@ -55,7 +55,7 @@ router.post('/user/register', async (req, res) => {
   return res.status(201).send({ message: 'New user was created successfully' });
 });
 
-// Signin User
+// Login User
 
 router.post('/user/login', basicAuth, async (req, res) => {
   return res.status(200).send({ message: 'Logged in successfully' });
@@ -110,46 +110,53 @@ router.put('/user/update-profile/:id', basicAuth, async (req, res) => {
 
 // GET user by ID
 
-router.get('/user/:id', async (req, res) => {
+router.get('/user/:id', async (req, res, next) => {
   try {
     const id = req.params.id;
     const user = await userProfile(id);
-
+    if (!user) {
+      const error = new Error('User not found');
+      error.status = 404;
+      throw error;
+    }
     return res.status(200).send({
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
     });
   } catch (error) {
-    return res.status(404).send({ error: 'User not found' });
+    next(error);
   }
 });
 
 // GET users list
 
-router.get('/users', async (req, res) => {
+router.get('/users', async (req, res, next) => {
   try {
     const { pageNumber = 0, nPerPage = 3 } = req.query;
     const users = await usersList(+pageNumber, +nPerPage);
-    if (users.length > 0) {
-      return res.json(
-        users.map((user) => {
-          return {
-            username: user.username,
-            firstName: user.firstName,
-            lastName: user.lastName,
-          };
-        }),
-      );
+    if (users.length === 0) {
+      const error = new Error('Not found on this page');
+      error.status = 404;
+      throw error;
     }
+    res.status(200).send(
+      users.map((user) => {
+        return {
+          username: user.username,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        };
+      }),
+    );
   } catch (error) {
-    return res.status(404).send({ error: 'Users not found' });
+    next(error);
   }
 });
 
 // Delete User
 
-router.delete('/user/:id', basicAuth, async (req, res) => {
+router.delete('/user/:id', basicAuth, async (req, res, next) => {
   try {
     const id = req.params.id;
     await deleteProfile(id);
@@ -157,7 +164,7 @@ router.delete('/user/:id', basicAuth, async (req, res) => {
       message: `User with  ID:'${id}' was deleted successfully`,
     });
   } catch (error) {
-    return res.status(404).send({ error: 'User not found' });
+    next(error);
   }
 });
 

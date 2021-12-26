@@ -3,22 +3,18 @@ const hash = require('../util/pbkdf2');
 
 const userMatch = async (id = null, username, password) => {
   let user = null;
-  try {
-    id
-      ? (user = await User.findOne({ _id: id, isDeleted: false }))
-      : (user = await User.findOne({ username, isDeleted: false }));
+  id
+    ? (user = await User.findOne({ _id: id, isDeleted: false }))
+    : (user = await User.findOne({ username, isDeleted: false }));
 
-    if (!user) {
-      return;
-    }
-    const { salt } = user;
-    const checkMatch = await hash(password, salt);
+  if (!user) {
+    return;
+  }
+  const { salt } = user;
+  const checkMatch = await hash(password, salt);
 
-    if (checkMatch.password === user.password && username === user.username) {
-      return user;
-    }
-  } catch (error) {
-    return error;
+  if (checkMatch.password === user.password && username === user.username) {
+    return user;
   }
 };
 

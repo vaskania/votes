@@ -8,6 +8,7 @@ const usersList = require('../components/usersList');
 const deleteProfile = require('../components/deleteProfile');
 const basicAuth = require('../middleware/basicAuth');
 const hash = require('../util/pbkdf2');
+const userHeader = require('../middleware/userHeader');
 
 const logger = require('../log/logger');
 
@@ -74,66 +75,65 @@ router.post('/user/login', basicAuth, async (req, res) => {
 
 // PUT update user Profile by ID
 
-router.put('/user/update-password/:id', basicAuth, async (req, res, next) => {
-  const { password: pwd } = req.body;
+router.put(
+  '/user/update-password/:id',
+  basicAuth,
+  userHeader,
+  async (req, res, next) => {
+    const { password: pwd } = req.body;
 
-  try {
-    if (!pwd || typeof pwd !== 'string') {
-      const error = new Error('Invalid Password');
-      error.status = 400;
-      throw error;
+    try {
+      if (!pwd || typeof pwd !== 'string') {
+        const error = new Error('Invalid Password');
+        error.status = 400;
+        throw error;
+      }
+
+      if (pwd.trim().length < 5) {
+        const error = new Error('Password too small, min 5 charachters');
+        error.status = 400;
+        throw error;
+      }
+
+      const { salt, password } = await hash(pwd);
+      const id = req.params.id;
+      await updateUserPassword(id, password, salt);
+      return res.status(200).send({ message: 'Password updated successfully' });
+    } catch (error) {
+      next(error);
     }
-
-    if (pwd.trim().length < 5) {
-      const error = new Error('Password too small, min 5 charachters');
-      error.status = 400;
-      throw error;
-    }
-
-    const { salt, password } = await hash(pwd);
-    const id = req.params.id;
-    await updateUserPassword(id, password, salt);
-    return res.status(200).send({ message: 'Password updated successfully' });
-  } catch (error) {
-    next(error);
-  }
-});
+  },
+);
 
 // PUT update user Profile by ID
 
-router.put('/user/update-profile/:id', basicAuth, async (req, res, next) => {
-  const { firstName, lastName } = req.body;
+router.put(
+  '/user/update-profile/:id',
+  basicAuth,
+  userHeader,
+  async (req, res, next) => {
+    const { firstName, lastName } = req.body;
 
-  try {
-    if (typeof firstName !== 'string' || firstName.trim() === '') {
-      const error = new Error('Invalid Firstname');
-      error.status = 400;
-      throw error;
-    }
+    try {
+      if (typeof firstName !== 'string' || firstName.trim() === '') {
+        const error = new Error('Invalid Firstname');
+        error.status = 400;
+        throw error;
+      }
 
-    if (typeof lastName !== 'string' || lastName.trim() === '') {
-      const error = new Error('Invalid Lastname');
-      error.status = 400;
-      throw error;
+      if (typeof lastName !== 'string' || lastName.trim() === '') {
+        const error = new Error('Invalid Lastname');
+        error.status = 400;
+        throw error;
+      }
+      const id = req.params.id;
+      await updateUserProfile(id, firstName, lastName);
+      return res.status(200).send({ message: 'Profile updated successfully' });
+    } catch (error) {
+      next(error);
     }
-    const id = req.params.id;
-    const { updatedAt } = await updateUserProfile(id, firstName, lastName);
-    res.set({
-      'Last-Modified': updatedAt,
-    });
-
-    const reqHeaderDate = new Date(req.headers['if-unmodified-since']);
-    const lastModified = new Date(res.getHeader('last-modified'));
-    if (reqHeaderDate > lastModified) {
-      const error = new Error("Cann't modife");
-      error.status = 412;
-      throw error;
-    }
-    return res.status(200).send({ message: 'Profile updated successfully' });
-  } catch (error) {
-    next(error);
-  }
-});
+  },
+);
 
 // GET user by ID
 

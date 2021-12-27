@@ -8,6 +8,8 @@ info:
     email: vnikabadze@unisens.ge
   version: 1.0.0
 servers:
+- url: https://virtserver.swaggerhub.com/unisens4/dsadsadsadas/1.0.0
+  description: SwaggerHub API Auto Mocking
 - url: https://virtserver.swaggerhub.com/vaskania/User-Management/1.0.0
   description: SwaggerHub API Auto Mocking
 paths:
@@ -83,6 +85,24 @@ paths:
                 $ref: '#/components/schemas/Error'
               example:
                 error: Invalid username/password
+        "401":
+          description: Missing Authorization Header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Missing Authorization Header
+        "403":
+          description: Username and password must be provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Username and password must be provided
+      security:
+      - basicAuth: []
   /user/{id}:
     get:
       summary: Get user by id
@@ -138,6 +158,30 @@ paths:
                 $ref: '#/components/schemas/DeleteProfile'
               example:
                 message: User with ID:"id" was deleted syccessfully
+        "400":
+          description: Invalid username/password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Invalid username/password
+        "401":
+          description: Missing Authorization Header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Missing Authorization Header
+        "403":
+          description: Username and password must be provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Username and password must be provided
         "404":
           description: User not found
           content:
@@ -146,6 +190,8 @@ paths:
                 $ref: '#/components/schemas/Error'
               example:
                 error: User not found
+      security:
+      - basicAuth: []
   /user/update-profile/{id}:
     put:
       tags:
@@ -171,6 +217,30 @@ paths:
                 $ref: '#/components/schemas/UpdateUserProfile'
               example:
                 message: Profile updated successfully
+        "400":
+          description: Invalid username/password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Invalid username/password
+        "401":
+          description: Missing Authorization Header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Missing Authorization Header
+        "403":
+          description: Username and password must be provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Username and password must be provided
         "404":
           description: User not found
           content:
@@ -179,6 +249,8 @@ paths:
                 $ref: '#/components/schemas/Error'
               example:
                 error: User not found
+      security:
+      - basicAuth: []
   /user/update-password/{id}:
     put:
       tags:
@@ -204,6 +276,30 @@ paths:
                 $ref: '#/components/schemas/UpdateUserPassword'
               example:
                 message: Password updated successfully
+        "400":
+          description: Invalid username/password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Invalid username/password
+        "401":
+          description: Missing Authorization Header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Missing Authorization Header
+        "403":
+          description: Username and password must be provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Username and password must be provided
         "404":
           description: User not found
           content:
@@ -212,6 +308,8 @@ paths:
                 $ref: '#/components/schemas/Error'
               example:
                 error: User not found
+      security:
+      - basicAuth: []
 components:
   schemas:
     Error:
@@ -279,3 +377,7 @@ components:
       properties:
         id:
           type: string
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic

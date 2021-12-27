@@ -19,40 +19,51 @@ router.use(bodyParser.json());
 router.post('/user/register', async (req, res, next) => {
   const { username, password: pwd, firstName, lastName } = req.body;
 
-  if (!username || typeof username !== 'string' || username.length < 5) {
-    return res.status(400).send({ error: 'Invalid Username' });
-  }
-
-  if (!pwd || typeof pwd !== 'string') {
-    return res.status(400).send({ error: 'Invalid Password' });
-  }
-
-  if (pwd.trim().length < 5) {
-    return res
-      .status(400)
-      .send({ error: 'Password too small, min 5 charachters' });
-  }
-
-  if (!firstName || typeof firstName !== 'string') {
-    return res.status(400).send({ error: 'Invalid Firstname' });
-  }
-
-  if (!lastName || typeof lastName !== 'string') {
-    return res.status(400).send({ error: 'Invalid Lastname' });
-  }
-
-  const { salt, password } = await hash(pwd);
-
   try {
+    if (!username || typeof username !== 'string' || username.length < 5) {
+      const error = new Error('Invalid Username');
+      error.status = 400;
+      throw error;
+    }
+
+    if (!pwd || typeof pwd !== 'string') {
+      const error = new Error('Invalid Password');
+      error.status = 400;
+      throw error;
+    }
+
+    if (pwd.trim().length < 5) {
+      const error = new Error('Password too small, min 5 charachters');
+      error.status = 400;
+      throw error;
+    }
+
+    if (!firstName || typeof firstName !== 'string') {
+      const error = new Error('Invalid Firstname');
+      error.status = 400;
+      throw error;
+    }
+
+    if (!lastName || typeof lastName !== 'string') {
+      const error = new Error('Invalid Lastname');
+      error.status = 400;
+      throw error;
+    }
+
+    const { salt, password } = await hash(pwd);
+
     await signup(username, firstName, lastName, password, salt);
+    logger.info(`${username} registered successfuly`);
+    return res
+      .status(201)
+      .send({ message: 'New user was created successfully' });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).send({ error: 'Username already exists' });
+      error.status = 400;
+      error.message = 'Username already exists';
     }
-    throw error;
+    next(error);
   }
-  logger.info(`${username} registered successfuly`);
-  return res.status(201).send({ message: 'New user was created successfully' });
 });
 
 // Login User
@@ -63,48 +74,53 @@ router.post('/user/login', basicAuth, async (req, res) => {
 
 // PUT update user Profile by ID
 
-router.put('/user/update-password/:id', basicAuth, async (req, res) => {
+router.put('/user/update-password/:id', basicAuth, async (req, res, next) => {
   const { password: pwd } = req.body;
 
-  if (!pwd || typeof pwd !== 'string') {
-    return res.status(400).send({ error: 'Invalid Password' });
-  }
-
-  if (pwd.trim().length < 5) {
-    return res
-      .status(400)
-      .send({ error: 'Password too small, min 5 charachters' });
-  }
-
-  const { salt, password } = await hash(pwd);
-
   try {
+    if (!pwd || typeof pwd !== 'string') {
+      const error = new Error('Invalid Password');
+      error.status = 400;
+      throw error;
+    }
+
+    if (pwd.trim().length < 5) {
+      const error = new Error('Password too small, min 5 charachters');
+      error.status = 400;
+      throw error;
+    }
+
+    const { salt, password } = await hash(pwd);
     const id = req.params.id;
     await updateUserPassword(id, password, salt);
     return res.status(200).send({ message: 'Password updated successfully' });
   } catch (error) {
-    return res.status(404).send({ error: 'Invalid user ID' });
+    next(error);
   }
 });
 
 // PUT update user Profile by ID
 
-router.put('/user/update-profile/:id', basicAuth, async (req, res) => {
+router.put('/user/update-profile/:id', basicAuth, async (req, res, next) => {
   const { firstName, lastName } = req.body;
-  if (typeof firstName !== 'string' || firstName.trim() === '') {
-    return res.status(400).send({ error: 'Invalid Firsname' });
-  }
-
-  if (typeof lastName !== 'string' || lastName.trim() === '') {
-    return res.status(400).send({ error: 'Invalid Lastname' });
-  }
 
   try {
+    if (typeof firstName !== 'string' || firstName.trim() === '') {
+      const error = new Error('Invalid Firstname');
+      error.status = 400;
+      throw error;
+    }
+
+    if (typeof lastName !== 'string' || lastName.trim() === '') {
+      const error = new Error('Invalid Lastname');
+      error.status = 400;
+      throw error;
+    }
     const id = req.params.id;
     await updateUserProfile(id, firstName, lastName);
-    res.status(200).send({ message: 'Profile updated successfully' });
+    return res.status(200).send({ message: 'Profile updated successfully' });
   } catch (error) {
-    return res.status(404).send({ error: 'User not found' });
+    next(error);
   }
 });
 

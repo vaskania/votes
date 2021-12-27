@@ -103,7 +103,7 @@ router.put('/user/update-password/:id', basicAuth, async (req, res, next) => {
 
 router.put('/user/update-profile/:id', basicAuth, async (req, res, next) => {
   const { firstName, lastName } = req.body;
-  // console.log(req.headers);
+
   try {
     if (typeof firstName !== 'string' || firstName.trim() === '') {
       const error = new Error('Invalid Firstname');
@@ -117,15 +117,18 @@ router.put('/user/update-profile/:id', basicAuth, async (req, res, next) => {
       throw error;
     }
     const id = req.params.id;
-    await updateUserProfile(id, firstName, lastName);
-    // const { updatedAt } = await updateUserProfile(id, firstName, lastName);
+    const { updatedAt } = await updateUserProfile(id, firstName, lastName);
+    res.set({
+      'Last-Modified': updatedAt,
+    });
 
-    // res.set({
-    //   'Content-Type': 'application/json',
-    //   expires: updatedAt,
-    //   'Last-Modified': updatedAt,
-    // });
-    // console.log(req);
+    const reqHeaderDate = new Date(req.headers['if-unmodified-since']);
+    const lastModified = new Date(res.getHeader('last-modified'));
+    if (reqHeaderDate > lastModified) {
+      const error = new Error("Cann't modife");
+      error.status = 412;
+      throw error;
+    }
     return res.status(200).send({ message: 'Profile updated successfully' });
   } catch (error) {
     next(error);

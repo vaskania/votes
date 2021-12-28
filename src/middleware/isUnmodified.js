@@ -5,8 +5,8 @@ const isUnmodified = async (req, res, next) => {
     const { updatedAt } = await userProfile(req.params.id);
     const lastModified = new Date(updatedAt);
     const reqHeaderDate = new Date(req.headers['if-unmodified-since']);
-    if (reqHeaderDate !== lastModified) {
-      res.status(412).send({ error: { message: 'Cannot modify data' } });
+    if (reqHeaderDate === lastModified) {
+      return res.status(412).send({ error: { message: 'Cannot modify data' } });
     }
     next();
   } catch (error) {

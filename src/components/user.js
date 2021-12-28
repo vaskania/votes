@@ -1,7 +1,7 @@
 const User = require('../model/user');
 const hash = require('../util/pbkdf2');
 
-const userMatch = async (id = null, username, password) => {
+const userMatch = async (username, password, id = null) => {
   let user = null;
   id
     ? (user = await User.findOne({ _id: id, isDeleted: false }))

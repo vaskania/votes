@@ -2,7 +2,7 @@ const userMatch = require('../components/user');
 const jwt = require('jsonwebtoken');
 
 const userLogin = async (req, res, next) => {
-  const { id, username, password } = req.body;
+  const { username, password } = req.body;
 
   try {
     if (!username || !password) {
@@ -10,7 +10,7 @@ const userLogin = async (req, res, next) => {
         .status(403)
         .send({ error: { message: 'Username and password must be provided' } });
     }
-    const authUser = await userMatch(id, username, password);
+    const authUser = await userMatch(username, password);
     if (!authUser) {
       return res
         .status(401)
@@ -19,7 +19,7 @@ const userLogin = async (req, res, next) => {
     const token = jwt.sign({ id: authUser._id }, process.env.SECRET, {
       expiresIn: 86400,
     });
-    return token;
+    return res.status(200).send({ message: 'Logged in successfully', token });
   } catch (error) {
     next(error);
   }

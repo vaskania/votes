@@ -1,13 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const signup = require('../components/signUp');
-const userLogin = require('../components/userLogin');
+const userLogin = require('../util/jwtLogin');
 const updateUserProfile = require('../components/updateUserProfile');
 const updateUserPassword = require('../components/updateUserPassword');
 const userProfile = require('../components/userProfile');
 const usersList = require('../components/usersList');
 const deleteProfile = require('../components/deleteProfile');
-const basicAuth = require('../middleware/basicAuth');
+const verifyToken = require('../middleware/auth');
 const hash = require('../util/pbkdf2');
 const isUnmodified = require('../middleware/isUnmodified');
 
@@ -70,19 +70,13 @@ router.post('/user/register', async (req, res, next) => {
 
 // Login User
 
-router.post('/user/login', async (req, res, next) => {
-  const userToken = await userLogin(req, res, next);
-  /* FIX response from userLogin */
-  return res
-    .status(200)
-    .send({ message: 'Logged in successfully', token: userToken });
-});
+router.post('/user/login', userLogin);
 
 // PUT update user Profile by ID
 
 router.put(
   '/user/update-password/:id',
-  basicAuth,
+  verifyToken,
   isUnmodified,
   async (req, res, next) => {
     const { password: pwd } = req.body;
@@ -114,11 +108,10 @@ router.put(
 
 router.put(
   '/user/update-profile/:id',
-  basicAuth,
+  verifyToken,
   isUnmodified,
   async (req, res, next) => {
     const { firstName, lastName } = req.body;
-
     try {
       if (typeof firstName !== 'string' || firstName.trim() === '') {
         const error = new Error('Invalid Firstname');
@@ -190,7 +183,7 @@ router.get('/users', async (req, res, next) => {
 
 // Delete User
 
-router.delete('/user/:id', basicAuth, async (req, res, next) => {
+router.delete('/user/:id', verifyToken, async (req, res, next) => {
   try {
     const id = req.params.id;
     await deleteProfile(id);

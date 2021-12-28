@@ -6,14 +6,11 @@ const verifyToken = (req, res, next) => {
 
   if (token == null) return res.sendStatus(401);
 
-  jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
-    // eslint-disable-next-line no-console
-    // console.log(err);
-
-    if (err) return res.sendStatus(403);
-
+  jwt.verify(token, process.env.SECRET, (err, user) => {
+    if (err) {
+      return res.status(401).send({ error: { message: 'Invalid token' } });
+    }
     req.user = user;
-
     next();
   });
 };

@@ -30,6 +30,11 @@ const UserSchema = new Schema(
     salt: {
       type: String,
     },
+    role: {
+      type: String,
+      default: 'user',
+      enum: ['user', 'moderator', 'admin'],
+    },
   },
   { timestamps: true },
 );

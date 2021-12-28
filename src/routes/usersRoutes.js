@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const signup = require('../components/signUp');
+const userLogin = require('../components/userLogin');
 const updateUserProfile = require('../components/updateUserProfile');
 const updateUserPassword = require('../components/updateUserPassword');
 const userProfile = require('../components/userProfile');
@@ -69,10 +70,12 @@ router.post('/user/register', async (req, res, next) => {
 
 // Login User
 
-router.post('/user/login', async (req, res) => {
-  // eslint-disable-next-line no-console
-  console.log(req.body);
-  return res.status(200).send({ message: 'Logged in successfully' });
+router.post('/user/login', async (req, res, next) => {
+  const userToken = await userLogin(req, res, next);
+  /* FIX response from userLogin */
+  return res
+    .status(200)
+    .send({ message: 'Logged in successfully', token: userToken });
 });
 
 // PUT update user Profile by ID
@@ -152,6 +155,7 @@ router.get('/user/:id', async (req, res, next) => {
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
+      updatedAt: user.updatedAt,
     });
   } catch (error) {
     next(error);
@@ -175,6 +179,7 @@ router.get('/users', async (req, res, next) => {
           username: user.username,
           firstName: user.firstName,
           lastName: user.lastName,
+          updatedAt: user.updatedAt,
         };
       }),
     );

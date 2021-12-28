@@ -8,7 +8,7 @@ const usersList = require('../components/usersList');
 const deleteProfile = require('../components/deleteProfile');
 const basicAuth = require('../middleware/basicAuth');
 const hash = require('../util/pbkdf2');
-const userHeader = require('../middleware/userHeader');
+const isUnmodified = require('../middleware/isUnmodified');
 
 const logger = require('../log/logger');
 
@@ -78,7 +78,7 @@ router.post('/user/login', basicAuth, async (req, res) => {
 router.put(
   '/user/update-password/:id',
   basicAuth,
-  userHeader,
+  isUnmodified,
   async (req, res, next) => {
     const { password: pwd } = req.body;
 
@@ -110,7 +110,7 @@ router.put(
 router.put(
   '/user/update-profile/:id',
   basicAuth,
-  userHeader,
+  isUnmodified,
   async (req, res, next) => {
     const { firstName, lastName } = req.body;
 

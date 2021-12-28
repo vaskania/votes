@@ -5,25 +5,25 @@ const basicAuth = async (req, res, next) => {
   try {
     const authorization = req.headers.authorization;
     if (!authorization || authorization.indexOf('Basic ') === -1) {
-      const error = new Error('Missing Authorization Header');
-      error.status = 401;
-      throw error;
+      return res
+        .status(401)
+        .send({ error: { message: 'Missing Authorization Header' } });
     }
     const encoded = authorization.split(' ')[1];
     const decoded = Buffer.from(encoded, 'base64').toString('ascii');
     const [username, password] = decoded.split(':');
 
     if (!username || !password) {
-      const error = new Error('Username and password must be provided');
-      error.status = 403;
-      throw error;
+      return res
+        .status(403)
+        .send({ error: { message: 'Username and password must be provided' } });
     }
     const authUser = await userMatch(id, username, password);
 
     if (!authUser) {
-      const error = new Error('Username or password is incorrect');
-      error.status = 401;
-      throw error;
+      return res
+        .status(401)
+        .send({ error: { message: 'Username or password is incorrect' } });
     }
 
     req.authenticatedUser = authUser;

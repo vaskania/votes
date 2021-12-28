@@ -55,9 +55,9 @@ router.post('/user/register', async (req, res, next) => {
 
     await signup(username, firstName, lastName, password, salt);
     logger.info(`${username} registered successfuly`);
-    return res
-      .status(201)
-      .send({ message: 'New user was created successfully' });
+    return res.status(201).send({
+      message: 'New user was created successfully',
+    });
   } catch (error) {
     if (error.code === 11000) {
       error.status = 400;
@@ -69,7 +69,9 @@ router.post('/user/register', async (req, res, next) => {
 
 // Login User
 
-router.post('/user/login', basicAuth, async (req, res) => {
+router.post('/user/login', async (req, res) => {
+  // eslint-disable-next-line no-console
+  console.log(req.body);
   return res.status(200).send({ message: 'Logged in successfully' });
 });
 

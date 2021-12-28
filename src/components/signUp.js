@@ -1,14 +1,17 @@
 const User = require('../model/user');
 
 const signup = async (username, firstName, lastName, password, salt) => {
-  const user = await User.create({
+  const newUser = await new User({
     username,
     firstName,
     lastName,
     password,
     salt,
   });
-  return user;
+
+  const savedUser = await newUser.save();
+
+  return savedUser;
 };
 
 module.exports = signup;

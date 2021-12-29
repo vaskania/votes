@@ -96,7 +96,12 @@ router.put(
 
       const { salt, password } = await hash(pwd);
       const id = req.params.id;
-      await updateUserPassword(id, password, salt);
+      const user = await updateUserPassword(id, password, salt);
+      if (!user) {
+        return res
+          .status(403)
+          .send({ error: { message: 'Permission denied' } });
+      }
       return res.status(200).send({ message: 'Password updated successfully' });
     } catch (error) {
       next(error);
@@ -125,7 +130,12 @@ router.put(
         throw error;
       }
       const id = req.params.id;
-      await updateUserProfile(id, firstName, lastName);
+      const user = await updateUserProfile(id, firstName, lastName);
+      if (!user) {
+        return res
+          .status(403)
+          .send({ error: { message: 'Permission denied' } });
+      }
       return res.status(200).send({ message: 'Profile updated successfully' });
     } catch (error) {
       next(error);
@@ -186,7 +196,16 @@ router.get('/users', async (req, res, next) => {
 router.delete('/user/:id', verifyToken, async (req, res, next) => {
   try {
     const id = req.params.id;
-    await deleteProfile(id);
+    const user = await deleteProfile(id);
+    if (!user) {
+      return res.status(404).send({ message: 'User not found' });
+    }
+    if (user.message) {
+      return res.status(404).send({ message: 'Invalid User' });
+    }
+    if (user.deleted === 0) {
+      return res.status(403).send({ error: { message: 'Permission denied' } });
+    }
     return res.status(200).send({
       message: `User with  ID:'${id}' was deleted successfully`,
     });

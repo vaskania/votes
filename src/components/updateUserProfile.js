@@ -1,12 +1,14 @@
 const User = require('../model/user');
 
 const updateUserProfile = async (id, firstName, lastName) => {
-  const user = await User.findByIdAndUpdate(
-    { _id: id, isDeleted: false },
+  const user = await User.findOneAndUpdate(
+    { _id: id, isDeleted: false, role: 'admin' },
     { firstName, lastName },
   );
-  user.save();
-  return user;
+  if (user) {
+    user.save();
+    return user;
+  }
 };
 
 module.exports = updateUserProfile;

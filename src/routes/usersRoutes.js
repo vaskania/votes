@@ -200,9 +200,6 @@ router.delete('/user/:id', verifyToken, async (req, res, next) => {
     if (!user) {
       return res.status(404).send({ message: 'User not found' });
     }
-    if (user.message) {
-      return res.status(404).send({ message: 'Invalid User' });
-    }
     if (user.deleted === 0) {
       return res.status(403).send({ error: { message: 'Permission denied' } });
     }

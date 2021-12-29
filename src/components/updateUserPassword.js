@@ -5,6 +5,7 @@ const updateUserPassword = async (id, password, salt) => {
     { _id: id, isDeleted: false, role: 'admin' },
     { password, salt },
   );
+
   if (user) {
     user.save();
     return user;

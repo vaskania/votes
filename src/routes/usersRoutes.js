@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const signup = require('../components/signUp');
-const userLogin = require('../util/jwtLogin');
+const userLogin = require('../middleware/jwtLogin');
 const updateUserProfile = require('../components/updateUserProfile');
 const updateUserPassword = require('../components/updateUserPassword');
 const userProfile = require('../components/userProfile');
@@ -197,6 +197,7 @@ router.delete('/user/:id', verifyToken, async (req, res, next) => {
   try {
     const id = req.params.id;
     const user = await deleteProfile(id);
+
     if (!user) {
       return res.status(404).send({ message: 'User not found' });
     }

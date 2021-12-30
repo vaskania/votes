@@ -1,13 +1,16 @@
 const User = require('../model/user');
-const userProfile = require('../components/userProfile');
+const findUser = require('../components/user');
 
-const deleteProfile = async (id) => {
-  const user = await userProfile(id);
+const deleteProfile = async (username, password, id) => {
+  const user = await findUser(username, password);
   if (!user) {
     return false;
   }
-  const profileDeleted = await User.softDelete({ _id: id, role: 'admin' });
-  return profileDeleted;
+  if (user.role === 'admin') {
+    await User.softDelete({ _id: id });
+    return { isAdmin: true };
+  }
+  return { isAdmin: false };
 };
 
 module.exports = deleteProfile;

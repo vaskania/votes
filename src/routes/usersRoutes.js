@@ -196,12 +196,12 @@ router.get('/users', async (req, res, next) => {
 router.delete('/user/:id', verifyToken, async (req, res, next) => {
   try {
     const id = req.params.id;
-    const user = await deleteProfile(id);
-
+    const { username, password } = req.body;
+    const user = await deleteProfile(username, password, id);
     if (!user) {
       return res.status(404).send({ message: 'User not found' });
     }
-    if (user.deleted === 0) {
+    if (!user.isAdmin) {
       return res.status(403).send({ error: { message: 'Permission denied' } });
     }
     return res.status(200).send({

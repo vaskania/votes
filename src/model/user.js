@@ -35,6 +35,20 @@ const UserSchema = new Schema(
       default: 'user',
       enum: ['user', 'moderator', 'admin'],
     },
+    votes_sum: {
+      type: Number,
+      default: 0,
+    },
+    lastVotedAt: {
+      type: Date,
+      default: 0,
+    },
+    votedUsers: [
+      {
+        username: { type: String },
+        vote: { type: Number, default: 0 },
+      },
+    ],
   },
   { timestamps: true },
 );

@@ -7,6 +7,7 @@ const updateUserPassword = require('../components/updateUserPassword');
 const userProfile = require('../components/userProfile');
 const usersList = require('../components/usersList');
 const deleteProfile = require('../components/deleteProfile');
+const userVote = require('../components/userVote');
 const verifyToken = require('../middleware/auth');
 const hash = require('../util/pbkdf2');
 const isUnmodified = require('../middleware/isUnmodified');
@@ -207,6 +208,30 @@ router.delete('/user/:id', verifyToken, async (req, res, next) => {
     return res.status(200).send({
       message: `User with  ID:'${id}' was deleted successfully`,
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// User Votes
+
+router.put('/users/vote/:id', verifyToken, async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const { username, vote } = req.body;
+    const user = await userVote(username, id, vote);
+
+    if (!user) {
+      return res.status(404).send({ message: 'User not found' });
+    }
+    if (user.isMatched) {
+      return res
+        .status(403)
+        .send({ error: { message: "You cann't vote for yourself" } });
+    }
+    if (!user.canVote) {
+      res.status(403).send({ meesage: 'You can vote only one time per hour' });
+    }
   } catch (error) {
     next(error);
   }
